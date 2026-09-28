@@ -1,4 +1,3 @@
-from typing import List, Optional
 from pydantic import BaseModel
 
 
@@ -6,9 +5,9 @@ class DashboardVehicleRow(BaseModel):
     vehicle_id: int
     registration: str
     vehicle_type: str
-    current_odometer: Optional[float]
-    service_due_km: Optional[float]
-    km_until_service: Optional[float]
+    current_odometer: float | None
+    service_due_km: float | None
+    km_until_service: float | None
     open_work_orders: int
 
     class Config:
@@ -21,7 +20,7 @@ class DashboardOut(BaseModel):
     total_vehicles: int
     vehicles_due_for_service: int
     open_work_orders: int
-    vehicles: List[DashboardVehicleRow]
+    vehicles: list[DashboardVehicleRow]
 
     class Config:
         from_attributes = True

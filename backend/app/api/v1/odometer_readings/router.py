@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.dependencies import get_db, get_current_user
@@ -16,20 +15,25 @@ router = APIRouter()
 
 
 @router.post(
-    "/vehicles/{vehicleId}/odometer-readings",
+    "/vehicles/{vehicle_id}/odometer-readings",
     response_model=OdometerReadingResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create a manual odometer reading for a vehicle",
 )
 async def create_odometer_reading(
-    vehicleId: str,
+    vehicle_id: str,
     payload: OdometerReadingCreate,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user),
 ):
+    if current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
     service = OdometerReadingsService(db)
     reading = await service.create_odometer_reading(
-        vehicle_id=vehicleId,
+        vehicle_id=vehicle_id,
         payload=payload,
         created_by=current_user["id"],
     )
@@ -42,18 +46,23 @@ async def create_odometer_reading(
 
 
 @router.get(
-    "/vehicles/{vehicleId}/odometer-readings",
-    response_model=List[OdometerReadingResponse],
+    "/vehicles/{vehicle_id}/odometer-readings",
+    response_model=list[OdometerReadingResponse],
     status_code=status.HTTP_200_OK,
     summary="List all odometer readings for a vehicle",
 )
 async def list_odometer_readings(
-    vehicleId: str,
+    vehicle_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user),
 ):
+    if current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
     service = OdometerReadingsService(db)
-    readings = await service.list_odometer_readings(vehicle_id=vehicleId)
+    readings = await service.list_odometer_readings(vehicle_id=vehicle_id)
     if readings is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -63,21 +72,26 @@ async def list_odometer_readings(
 
 
 @router.get(
-    "/vehicles/{vehicleId}/odometer-readings/{readingId}",
+    "/vehicles/{vehicle_id}/odometer-readings/{reading_id}",
     response_model=OdometerReadingResponse,
     status_code=status.HTTP_200_OK,
     summary="Get a single odometer reading by ID",
 )
 async def get_odometer_reading(
-    vehicleId: str,
-    readingId: str,
+    vehicle_id: str,
+    reading_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user),
 ):
+    if current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
     service = OdometerReadingsService(db)
     reading = await service.get_odometer_reading(
-        vehicle_id=vehicleId,
-        reading_id=readingId,
+        vehicle_id=vehicle_id,
+        reading_id=reading_id,
     )
     if reading is None:
         raise HTTPException(

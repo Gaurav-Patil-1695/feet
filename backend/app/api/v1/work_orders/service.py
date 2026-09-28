@@ -1,11 +1,14 @@
 from datetime import datetime, timezone
-from typing import List, Optional
 from uuid import UUID, uuid4
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from backend.app.api.v1.work_orders.schemas import WorkOrderCreate, WorkOrderUpdate
+
+_WORK_ORDER_UPDATABLE_FIELDS = frozenset(
+    {"description", "assigned_to", "scheduled_date", "status", "updated_at"}
+)
 
 
 class WorkOrderService:
@@ -15,7 +18,11 @@ class WorkOrderService:
     def _row_to_dict(self, row) -> dict:
         return dict(row._mapping) if hasattr(row, "_mapping") else dict(row)
 
-    def get_work_orders(self, vehicle_id: Optional[UUID] = None, status: Optional[str] = None) -> List[dict]:
+    def get_work_orders(
+        self,
+        vehicle_id: UUID | None = None,
+        status: str | None = None,
+    ) -> list[dict]:
         from sqlalchemy import text
 
         query = "SELECT * FROM work_orders WHERE 1=1"
@@ -35,17 +42,20 @@ class WorkOrderService:
         rows = result.fetchall()
         return [self._row_to_dict(r) for r in rows]
 
-    def get_work_orders_by_user(self, user_id: UUID) -> List[dict]:
+    def get_work_orders_by_user(self, user_id: UUID) -> list[dict]:
         from sqlalchemy import text
 
         result = self.db.execute(
-            text("SELECT * FROM work_orders WHERE created_by = :user_id ORDER BY created_at DESC"),
+            text(
+                "SELECT * FROM work_orders"
+                " WHERE created_by = :user_id ORDER BY created_at DESC"
+            ),
             {"user_id": str(user_id)},
         )
         rows = result.fetchall()
         return [self._row_to_dict(r) for r in rows]
 
-    def get_work_order_by_id(self, work_order_id: UUID) -> Optional[dict]:
+    def get_work_order_by_id(self, work_order_id: UUID) -> dict | None:
         from sqlalchemy import text
 
         result = self.db.execute(
@@ -57,7 +67,9 @@ class WorkOrderService:
             return None
         return self._row_to_dict(row)
 
-    def create_work_order(self, payload: WorkOrderCreate, created_by: UUID) -> dict:
+    def create_work_order(
+        self, payload: WorkOrderCreate, created_by: UUID
+    ) -> dict:
         from sqlalchemy import text
 
         work_order_id = uuid4()
@@ -96,7 +108,9 @@ class WorkOrderService:
 
         return self.get_work_order_by_id(work_order_id)
 
-    def update_work_order(self, work_order_id: UUID, payload: WorkOrderUpdate) -> Optional[dict]:
+    def update_work_order(
+        self, work_order_id: UUID, payload: WorkOrderUpdate
+    ) -> dict | None:
         from sqlalchemy import text
 
         existing = self.get_work_order_by_id(work_order_id)
@@ -124,6 +138,11 @@ class WorkOrderService:
 
         updates["updated_at"] = datetime.now(timezone.utc)
         updates["id"] = str(work_order_id)
+
+        # Validate keys against allowlist to prevent SQL injection
+        invalid_keys = (set(updates.keys()) - {"id"}) - _WORK_ORDER_UPDATABLE_FIELDS
+        if invalid_keys:
+            raise ValueError(f"Invalid update fields: {invalid_keys}")
 
         set_clause = ", ".join(f"{k} = :{k}" for k in updates if k != "id")
         self.db.execute(
@@ -154,7 +173,12 @@ class WorkOrderService:
         self.db.commit()
         return True
 
-    def close_work_order(self, work_order_id: UUID, closed_by: UUID, closing_notes: Optional[str] = None) -> Optional[dict]:
+    def close_work_order(
+        self,
+        work_order_id: UUID,
+        closed_by: UUID,
+        closing_notes: str | None = None,
+    ) -> dict | None:
         from sqlalchemy import text
 
         existing = self.get_work_order_by_id(work_order_id)

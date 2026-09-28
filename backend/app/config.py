@@ -1,19 +1,17 @@
-from typing import List
-
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     # Application
     APP_ENV: str = "development"
-    SECRET_KEY: str = "changeme"
+    SECRET_KEY: str  # No default — must be set via environment variable
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@db:5432/fleet"
 
     # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
+    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:5173"]
 
     # Telematics
     TELEMATICS_MODE: str = "mock"  # Options: mock, live

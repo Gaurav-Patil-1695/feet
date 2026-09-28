@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime, timezone
-from typing import List, Optional
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -34,9 +33,9 @@ class OdometerReadingsService:
         vehicle_id: str,
         odometer_value: float,
         reading_date: datetime,
-        source: Optional[str],
-        notes: Optional[str],
-        created_by: Optional[str],
+        source: str | None,
+        notes: str | None,
+        created_by: str | None,
     ) -> OdometerReadingResponse:
         reading_id = str(uuid.uuid4())
         created_at = datetime.now(timezone.utc)
@@ -45,9 +44,11 @@ class OdometerReadingsService:
             text(
                 """
                 INSERT INTO odometer_readings
-                    (id, vehicle_id, odometer_value, reading_date, source, notes, created_by, created_at)
+                    (id, vehicle_id, odometer_value, reading_date,
+                     source, notes, created_by, created_at)
                 VALUES
-                    (:id, :vehicle_id, :odometer_value, :reading_date, :source, :notes, :created_by, :created_at)
+                    (:id, :vehicle_id, :odometer_value, :reading_date,
+                     :source, :notes, :created_by, :created_at)
                 """
             ),
             {
@@ -103,7 +104,10 @@ class OdometerReadingsService:
         """
         try:
             await self.db.execute(
-                text("REFRESH MATERIALIZED VIEW CONCURRENTLY vehicle_service_due_mv")
+                text(
+                    "REFRESH MATERIALIZED VIEW CONCURRENTLY"
+                    " vehicle_service_due_mv"
+                )
             )
             await self.db.commit()
         except Exception:
@@ -131,8 +135,8 @@ class OdometerReadingsService:
         self,
         vehicle_id: str,
         payload: OdometerReadingCreate,
-        created_by: Optional[str] = None,
-    ) -> Optional[OdometerReadingResponse]:
+        created_by: str | None = None,
+    ) -> OdometerReadingResponse | None:
         if not await self._vehicle_exists(vehicle_id):
             return None
 
@@ -147,7 +151,7 @@ class OdometerReadingsService:
 
     async def list_odometer_readings(
         self, vehicle_id: str
-    ) -> Optional[List[OdometerReadingResponse]]:
+    ) -> list[OdometerReadingResponse] | None:
         if not await self._vehicle_exists(vehicle_id):
             return None
 
@@ -180,7 +184,7 @@ class OdometerReadingsService:
 
     async def get_odometer_reading(
         self, vehicle_id: str, reading_id: str
-    ) -> Optional[OdometerReadingResponse]:
+    ) -> OdometerReadingResponse | None:
         result = await self.db.execute(
             text(
                 """
@@ -213,7 +217,7 @@ class OdometerReadingsService:
     ) -> TelematicsIngestResponse:
         processed = 0
         skipped = 0
-        errors: List[str] = []
+        errors: list[str] = []
 
         for entry in payload.readings:
             try:
@@ -250,7 +254,7 @@ class OdometerReadingsService:
     ) -> TelematicsIngestResponse:
         processed = 0
         skipped = 0
-        errors: List[str] = []
+        errors: list[str] = []
 
         for entry in payload.readings:
             try:
@@ -275,7 +279,8 @@ class OdometerReadingsService:
             except Exception as exc:  # noqa: BLE001
                 skipped += 1
                 errors.append(
-                    f"Failed to ingest mock reading for vehicle {entry.vehicle_id}: {exc}"
+                    f"Failed to ingest mock reading for vehicle"
+                    f" {entry.vehicle_id}: {exc}"
                 )
 
         return TelematicsIngestResponse(

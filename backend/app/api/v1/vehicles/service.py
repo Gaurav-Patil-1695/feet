@@ -1,12 +1,22 @@
-from typing import List, Optional
-
-from sqlalchemy import select, update, delete, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.api.v1.vehicles.schemas import (
     VehicleCreate,
     VehicleUpdate,
     VehicleResponse,
+)
+
+_VEHICLE_UPDATABLE_FIELDS = frozenset(
+    {
+        "registration_number",
+        "vehicle_type_id",
+        "depot_id",
+        "year",
+        "make",
+        "model",
+        "current_odometer",
+    }
 )
 
 
@@ -16,9 +26,9 @@ class VehicleService:
 
     async def get_vehicles(
         self,
-        depot_id: Optional[int] = None,
-        vehicle_type_id: Optional[int] = None,
-    ) -> List[VehicleResponse]:
+        depot_id: int | None = None,
+        vehicle_type_id: int | None = None,
+    ) -> list[VehicleResponse]:
         query = text(
             """
             SELECT
@@ -48,7 +58,7 @@ class VehicleService:
         rows = result.mappings().all()
         return [VehicleResponse(**dict(row)) for row in rows]
 
-    async def get_vehicle(self, vehicle_id: int) -> Optional[VehicleResponse]:
+    async def get_vehicle(self, vehicle_id: int) -> VehicleResponse | None:
         query = text(
             """
             SELECT
@@ -104,7 +114,7 @@ class VehicleService:
 
     async def update_vehicle(
         self, vehicle_id: int, payload: VehicleUpdate
-    ) -> Optional[VehicleResponse]:
+    ) -> VehicleResponse | None:
         existing = await self.get_vehicle(vehicle_id)
         if existing is None:
             return None
@@ -113,18 +123,21 @@ class VehicleService:
         if not update_data:
             return existing
 
+        # Validate keys against allowlist to prevent SQL injection
+        invalid_keys = set(update_data.keys()) - _VEHICLE_UPDATABLE_FIELDS
+        if invalid_keys:
+            raise ValueError(f"Invalid update fields: {invalid_keys}")
+
         set_clauses = ", ".join(
             f"{key} = :{key}" for key in update_data.keys()
         )
         query = text(
-            f"""
-            UPDATE vehicles
-            SET {set_clauses}, updated_at = NOW()
-            WHERE id = :vehicle_id
-            RETURNING
-                id, registration_number, vehicle_type_id, depot_id, year, make, model,
-                current_odometer, created_at, updated_at
-            """
+            f"UPDATE vehicles"
+            f" SET {set_clauses}, updated_at = NOW()"
+            f" WHERE id = :vehicle_id"
+            f" RETURNING"
+            f"     id, registration_number, vehicle_type_id, depot_id, year, make, model,"
+            f"     current_odometer, created_at, updated_at"
         )
         params = {**update_data, "vehicle_id": vehicle_id}
         result = await self.db.execute(query, params)

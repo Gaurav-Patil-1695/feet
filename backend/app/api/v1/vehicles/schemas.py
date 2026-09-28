@@ -1,4 +1,3 @@
-from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 
@@ -7,10 +6,10 @@ class VehicleIn(BaseModel):
     registration_number: str = Field(..., min_length=1, max_length=50)
     vehicle_type_id: int
     depot_id: int
-    year: Optional[int] = None
-    make: Optional[str] = None
-    model: Optional[str] = None
-    current_odometer: Optional[float] = None
+    year: int | None = None
+    make: str | None = None
+    model: str | None = None
+    current_odometer: float | None = None
 
 
 class VehicleCreate(VehicleIn):
@@ -18,13 +17,13 @@ class VehicleCreate(VehicleIn):
 
 
 class VehicleUpdate(BaseModel):
-    registration_number: Optional[str] = Field(None, min_length=1, max_length=50)
-    vehicle_type_id: Optional[int] = None
-    depot_id: Optional[int] = None
-    year: Optional[int] = None
-    make: Optional[str] = None
-    model: Optional[str] = None
-    current_odometer: Optional[float] = None
+    registration_number: str | None = Field(None, min_length=1, max_length=50)
+    vehicle_type_id: int | None = None
+    depot_id: int | None = None
+    year: int | None = None
+    make: str | None = None
+    model: str | None = None
+    current_odometer: float | None = None
 
 
 class VehicleOut(BaseModel):
@@ -32,12 +31,12 @@ class VehicleOut(BaseModel):
     registration_number: str
     vehicle_type_id: int
     depot_id: int
-    year: Optional[int] = None
-    make: Optional[str] = None
-    model: Optional[str] = None
-    current_odometer: Optional[float] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    year: int | None = None
+    make: str | None = None
+    model: str | None = None
+    current_odometer: float | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
     class Config:
         from_attributes = True
@@ -48,8 +47,8 @@ class VehicleResponse(VehicleOut):
 
 
 class VehicleDetailOut(VehicleOut):
-    vehicle_type_name: Optional[str] = None
-    depot_name: Optional[str] = None
+    vehicle_type_name: str | None = None
+    depot_name: str | None = None
 
     class Config:
         from_attributes = True

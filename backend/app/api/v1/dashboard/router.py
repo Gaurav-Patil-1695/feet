@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.dependencies import get_db
@@ -13,4 +13,10 @@ async def get_depot_dashboard(
     depot_id: int,
     db: AsyncSession = Depends(get_db),
 ) -> DashboardResponse:
-    return await get_dashboard(db=db, depot_id=depot_id)
+    result = await get_dashboard(db=db, depot_id=depot_id)
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Depot not found",
+        )
+    return result

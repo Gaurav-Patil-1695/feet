@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -7,7 +5,7 @@ from sqlalchemy import text
 from backend.app.api.v1.schedules.schemas import ScheduleCreate, ScheduleUpdate
 
 
-def get_schedules(db: Session) -> List[dict]:
+def get_schedules(db: Session) -> list[dict]:
     result = db.execute(text("SELECT * FROM schedules ORDER BY id"))
     rows = result.mappings().all()
     return [dict(row) for row in rows]
@@ -52,10 +50,24 @@ def create_schedule(db: Session, payload: ScheduleCreate) -> dict:
 def update_schedule(db: Session, schedule_id: int, payload: ScheduleUpdate) -> dict:
     existing = get_schedule(db=db, schedule_id=schedule_id)
 
-    updated_vehicle_id = payload.vehicle_id if payload.vehicle_id is not None else existing["vehicle_id"]
-    updated_scheduled_date = payload.scheduled_date if payload.scheduled_date is not None else existing["scheduled_date"]
-    updated_service_type = payload.service_type if payload.service_type is not None else existing["service_type"]
-    updated_notes = payload.notes if payload.notes is not None else existing["notes"]
+    updated_vehicle_id = (
+        payload.vehicle_id
+        if payload.vehicle_id is not None
+        else existing["vehicle_id"]
+    )
+    updated_scheduled_date = (
+        payload.scheduled_date
+        if payload.scheduled_date is not None
+        else existing["scheduled_date"]
+    )
+    updated_service_type = (
+        payload.service_type
+        if payload.service_type is not None
+        else existing["service_type"]
+    )
+    updated_notes = (
+        payload.notes if payload.notes is not None else existing["notes"]
+    )
 
     result = db.execute(
         text(

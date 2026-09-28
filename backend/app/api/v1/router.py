@@ -13,9 +13,17 @@ api_v1_router = APIRouter(prefix="/api/v1")
 
 api_v1_router.include_router(auth_router, prefix="/auth", tags=["auth"])
 api_v1_router.include_router(vehicles_router, prefix="/vehicles", tags=["vehicles"])
-api_v1_router.include_router(service_due_router, prefix="/service-due", tags=["service-due"])
-api_v1_router.include_router(work_orders_router, prefix="/work-orders", tags=["work-orders"])
+api_v1_router.include_router(
+    service_due_router, prefix="/service-due", tags=["service-due"]
+)
+api_v1_router.include_router(
+    work_orders_router, prefix="/work-orders", tags=["work-orders"]
+)
 api_v1_router.include_router(users_router, prefix="/users", tags=["users"])
-api_v1_router.include_router(schedules_router, prefix="/schedules", tags=["schedules"])
-api_v1_router.include_router(vehicle_types_router, prefix="/vehicle-types", tags=["vehicle-types"])
+api_v1_router.include_router(
+    schedules_router, prefix="/schedules", tags=["schedules"]
+)
+api_v1_router.include_router(
+    vehicle_types_router, prefix="/vehicle-types", tags=["vehicle-types"]
+)
 api_v1_router.include_router(depots_router, prefix="/depots", tags=["depots"])

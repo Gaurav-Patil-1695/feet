@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import datetime, timedelta, timezone
 
 import bcrypt
 from jose import JWTError, jwt
@@ -26,10 +25,10 @@ class AuthService:
     def _create_access_token(
         self,
         subject: str,
-        extra_claims: Optional[dict] = None,
-        expires_delta: Optional[timedelta] = None,
+        extra_claims: dict | None = None,
+        expires_delta: timedelta | None = None,
     ) -> str:
-        expire = datetime.utcnow() + (
+        expire = datetime.now(timezone.utc) + (
             expires_delta
             if expires_delta is not None
             else timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -73,7 +72,7 @@ class AuthService:
 
     async def get_current_user(self, token: str) -> UserResponse:
         payload = self.decode_access_token(token)
-        user_id: Optional[str] = payload.get("sub")
+        user_id: str | None = payload.get("sub")
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

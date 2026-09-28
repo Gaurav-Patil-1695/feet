@@ -1,12 +1,11 @@
 from pydantic import BaseModel
-from typing import Optional
 
 
 class ScheduleIn(BaseModel):
     vehicle_id: int
     scheduled_date: str
     service_type: str
-    notes: Optional[str] = None
+    notes: str | None = None
 
 
 class ScheduleOut(BaseModel):
@@ -14,7 +13,7 @@ class ScheduleOut(BaseModel):
     vehicle_id: int
     scheduled_date: str
     service_type: str
-    notes: Optional[str] = None
+    notes: str | None = None
 
     class Config:
         from_attributes = True
@@ -25,10 +24,10 @@ ScheduleCreate = ScheduleIn
 
 
 class ScheduleUpdate(BaseModel):
-    vehicle_id: Optional[int] = None
-    scheduled_date: Optional[str] = None
-    service_type: Optional[str] = None
-    notes: Optional[str] = None
+    vehicle_id: int | None = None
+    scheduled_date: str | None = None
+    service_type: str | None = None
+    notes: str | None = None
 
 
 ScheduleResponse = ScheduleOut

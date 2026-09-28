@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -8,8 +7,8 @@ from pydantic import BaseModel
 class WorkOrderIn(BaseModel):
     vehicle_id: UUID
     description: str
-    assigned_to: Optional[UUID] = None
-    scheduled_date: Optional[datetime] = None
+    assigned_to: UUID | None = None
+    scheduled_date: datetime | None = None
 
 
 class WorkOrderCreate(WorkOrderIn):
@@ -17,14 +16,14 @@ class WorkOrderCreate(WorkOrderIn):
 
 
 class WorkOrderUpdate(BaseModel):
-    description: Optional[str] = None
-    assigned_to: Optional[UUID] = None
-    scheduled_date: Optional[datetime] = None
-    status: Optional[str] = None
+    description: str | None = None
+    assigned_to: UUID | None = None
+    scheduled_date: datetime | None = None
+    status: str | None = None
 
 
 class WorkOrderClose(BaseModel):
-    closing_notes: Optional[str] = None
+    closing_notes: str | None = None
 
 
 class WorkOrderResponse(BaseModel):
@@ -32,14 +31,14 @@ class WorkOrderResponse(BaseModel):
     vehicle_id: UUID
     description: str
     status: str
-    assigned_to: Optional[UUID] = None
-    scheduled_date: Optional[datetime] = None
-    closing_notes: Optional[str] = None
-    created_by: Optional[UUID] = None
-    closed_by: Optional[UUID] = None
+    assigned_to: UUID | None = None
+    scheduled_date: datetime | None = None
+    closing_notes: str | None = None
+    created_by: UUID | None = None
+    closed_by: UUID | None = None
     created_at: datetime
     updated_at: datetime
-    closed_at: Optional[datetime] = None
+    closed_at: datetime | None = None
 
     class Config:
         from_attributes = True
