@@ -1,0 +1,316 @@
+/* ── Global resets & base styles ────────────────────────────────────────── */
+@import './tokens.css';
+
+/*
+ * Modern CSS reset based on Andy Bell's reset, adapted for this project.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Prevent font size inflation on mobile */
+  -moz-text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  /* Smooth scrolling unless user prefers reduced motion */
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  isolation: isolate;
+}
+
+/* ── Typography ─────────────────────────────────────────────────────────── */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family-sans);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  /* Prevent long words from overflowing */
+  overflow-wrap: break-word;
+}
+
+h1 {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+h2 {
+  font-size: var(--font-size-2xl);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+h3 {
+  font-size: var(--font-size-xl);
+}
+
+h4 {
+  font-size: var(--font-size-lg);
+}
+
+h5 {
+  font-size: var(--font-size-md);
+}
+
+h6 {
+  font-size: var(--font-size-sm);
+}
+
+p {
+  line-height: var(--line-height-relaxed);
+  overflow-wrap: break-word;
+}
+
+/* ── Links ──────────────────────────────────────────────────────────────── */
+
+a {
+  color: var(--color-text-link);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  transition:
+    color var(--duration-fast) var(--easing-default);
+}
+
+a:hover {
+  color: var(--color-text-link-hover);
+}
+
+a:not([class]) {
+  text-decoration-skip-ink: auto;
+}
+
+/* ── Lists ──────────────────────────────────────────────────────────────── */
+
+ul,
+ol {
+  list-style: none;
+}
+
+/* ── Media elements ─────────────────────────────────────────────────────── */
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+svg {
+  flex-shrink: 0;
+}
+
+/* ── Form elements ──────────────────────────────────────────────────────── */
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* ── Table ──────────────────────────────────────────────────────────────── */
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* ── Code & pre ─────────────────────────────────────────────────────────── */
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+}
+
+pre {
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ── HR ─────────────────────────────────────────────────────────────────── */
+
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border-default);
+  margin-block: var(--space-4);
+}
+
+/* ── Focus indicators ───────────────────────────────────────────────────── */
+
+/*
+ * Remove the default browser outline and replace with a consistent,
+ * accessible custom focus ring using the design token values.
+ * We only apply the ring on keyboard navigation (:focus-visible) to avoid
+ * showing it on mouse/touch interactions.
+ */
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+/*
+ * Interactive elements that act as buttons but are rendered as divs or spans
+ * should also receive the focus ring.
+ */
+[tabindex]:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+/* Ensure skip-to-main-content links are reachable */
+.skip-to-content {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: var(--z-toast);
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-150%);
+  transition: transform var(--duration-normal) var(--easing-out);
+}
+
+.skip-to-content:focus-visible {
+  transform: translateY(0);
+}
+
+/* ── Reduced-motion ─────────────────────────────────────────────────────── */
+
+/*
+ * Honour the user's system preference to reduce motion.
+ * Collapse animation durations and remove scroll-behaviour for users who
+ * have requested reduced motion in their OS accessibility settings.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Selection ──────────────────────────────────────────────────────────── */
+
+::selection {
+  background-color: var(--color-brand-200);
+  color: var(--color-neutral-900);
+}
+
+/* ── Scrollbar (Webkit) ─────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-subtle);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-300);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-bg-subtle);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-400);
+}
+
+/* ── Utility helpers ────────────────────────────────────────────────────── */
+
+/* Visually hidden but accessible to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Undo .sr-only when focusable (e.g. skip links) */
+.sr-only-focusable:focus,
+.sr-only-focusable:focus-within {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Truncate overflowing text with ellipsis */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
