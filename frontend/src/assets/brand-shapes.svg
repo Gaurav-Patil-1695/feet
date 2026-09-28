@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <!-- Quarter-circle (top-left) -->
+  <path d="M0 0 A12 12 0 0 1 12 0 L0 0 Z" fill="currentColor" opacity="0.18"/>
+  <!-- Triangle (top-right) -->
+  <polygon points="14,0 24,0 24,10" fill="currentColor" opacity="0.28"/>
+  <!-- Square (bottom-left) -->
+  <rect x="0" y="15" width="9" height="9" fill="currentColor" opacity="0.22"/>
+  <!-- Circle (bottom-right) -->
+  <circle cx="19" cy="19" r="5" fill="currentColor" opacity="0.14"/>
+</svg>
